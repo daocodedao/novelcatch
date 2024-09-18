@@ -1,0 +1,6 @@
+.aider*
+venv/
+__pycache__/
+images/
+.vscode/
+.aider.tags.cache.v3/
