@@ -1,42 +1,70 @@
 
 import time
-from selenium import webdriver
-import os
-from selenium.webdriver.common.by import By
-from selenium.webdriver.chrome.options import Options
-from webdriver_manager.chrome import ChromeDriverManager
 import re
 import cn2an
 import asyncio
-from playwright.async_api import Playwright, async_playwright
-
-from lxml import etree
-import threading
-
+from playwright.async_api import async_playwright
 browser = None
 context = None
 page = None
 
+def replace_string(string):
+    """
+    替换字符串，提取章数和标题
+
+    Args:
+        string: 待替换的字符串
+
+    Returns:
+        替换后的字符串
+    """
+
+    # 正则表达式匹配章数和标题
+    pattern = r"(\d+)\.第\1章 (.*)"
+    match = re.match(pattern, string)
+
+    if match:
+        chapter_num, title = match.groups()
+        return f"第 {chapter_num} 章 {title}"
+    else:
+        return string
+
+
 async def catchNovel(playwright, nextPagePre, url):
     global browser,context,page
     if not browser:
-        browser = await playwright.chromium.launch(headless=False)
+        browser = await playwright.firefox.launch(headless=False)
         context = await browser.new_context()
         page = await context.new_page()
     await page.goto(url)
     
 
-    titleNode = await page.query_selector('//*[@class="title"]')
+    titleNode = await page.query_selector('//*[@class="hide720"]')
     title = await titleNode.text_content()
-    contentNode = await page.query_selector('//*[@id="chaptercontent"]')
-    contents = await contentNode.text_content()
-    # a[0]/@href
-    # /html/body/div[1]/div[4]/div[1]/ul/li[3]/a
-    # next_url = html.xpath('//*[@class="page1"]/@href')
-    next_url_node = await page.query_selector('//*[@id="pb_next"]')
-    next_url = await next_url_node.get_attribute("href")
+    if len(title.split("（")) > 0:
+        title = title.split("（")[0]
+    title = replace_string(title)
 
-    next_url = nextPagePre + next_url
+    p_tags  = await page.query_selector_all('//*[@class="txtnav"]/p')
+    all_contents=""
+    for p_tag in p_tags:
+        # 获取<p>标签下的文字内容
+        text_content = await p_tag.text_content()
+
+        if "章 " in text_content and len(all_contents) == 0:
+            title = text_content
+            if len(title.split("（")) > 0:
+                title = title.split("（")[0]
+            continue
+
+        # 将文字内容添加到列表中
+        all_contents=f"{all_contents}\n\n{text_content}"
+    contents = all_contents
+
+    nextNode = await page.query_selector('//*[@class="page1"]/a[4]')
+    next_url = await nextNode.get_attribute("href")  #定义text变量接收a标签底下的href属性
+
+    # next_url = nextPagePre + next_url
     # next_url = "https://m.qmxs123.com" + next_url
     return title, contents, next_url
 
@@ -52,7 +80,7 @@ def handle_title(title, index, bookTitle, oldTitle):
     title = title.replace("正文 ", "")
     title = title.replace("1）分段阅读_", "")
     title = title.replace("章  ", "章 ")
-    title = cn2an.transform(title, "cn2an")
+    # title = cn2an.transform(title, "cn2an")
 
     if title == oldTitle or title in oldTitle:
         title = ""    
@@ -86,6 +114,7 @@ def handle_content(content):
 
     content = content.replace("\u3000\u3000", "")
     content = content.replace("\n\u2003\u2003", "")
+    content = content.replace("\u2003\u2003", "")
     content = content.replace("请收藏：https://m.qmxs123.com", "")
     content = content.replace("温梦卿李小兵老黄", "")
     content = content.replace("\n\t", "")
@@ -120,7 +149,7 @@ async def readOneNovel(bookTitle,
                         f.write(title)
                         f.write("\r\n") 
 
-                    contentList = contents.split("\u3000\u3000")
+                    contentList = contents.split("\u2003\u2003")
                     for content in contentList:
                         content = handle_content(content)
                         if len(content) == 0:
@@ -136,11 +165,11 @@ async def readOneNovel(bookTitle,
 
 novelList=[
 {
-    "url":"https://www.bq97.cc/htm/35090/87.html",
-    "bookTitle":"匠心",
-    "nextPagePreUrl":"https://www.bq97.cc",
-    "mode":"add",
-    "sectionIdx":87
+    "url":"https://69shuba.cx/txt/52902/34470364",
+    "bookTitle":"黄金时代1991",
+    "nextPagePreUrl":"https://69shuba.cx",
+    "mode":"new",
+    "sectionIdx":90
 }
 ]
 
