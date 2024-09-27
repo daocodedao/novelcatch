@@ -1,25 +1,33 @@
 import re
 
+def replace_string(string):
+    """
+    替换字符串，提取章数和标题
 
-def addHashTag(input=""):
-    if len(input) == 0:
-        return ""
-    hashwords = ['eth','bitcoin','btc','genesis']
+    Args:
+        string: 待替换的字符串
 
-    words = input.split()
-    for word in words:
-        if word[0] != '#':
-            if word.lower() in hashwords:
-                input = input.replace(" " + word, " #"+word)
+    Returns:
+        替换后的字符串
+    """
 
-    print(input)
-    return input
+    # 正则表达式匹配章数和标题
+    pattern = r"(\d+)\.第\1章 (.*)"
+    match = re.match(pattern, string)
 
-def add_new_lines(text):  
-    pattern = r'(\s*)第([0-9])章(\s*)'   
-    result = re.sub(pattern, r'\n  第\2章\3', text)  
-    return result
-  
-text = "这是第1章的内容，接下来是第1章的内容。"
-new_text = add_new_lines(text)
-print(new_text)
+    if match:
+        chapter_num, title = match.groups()
+        return f"第 {chapter_num} 章 {title}"
+    else:
+        return "格式错误"
+
+# 测试用例
+strings = [
+    "90.第90章 姐姐就是那路边的野花",
+    "291.第291章 姐姐就是那路边的野花2",
+    "2392.第2392章 姐姐就是那路边的野花3"
+]
+
+for string in strings:
+    result = replace_string(string)
+    print(result)
