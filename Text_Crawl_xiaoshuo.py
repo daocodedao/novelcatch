@@ -44,7 +44,7 @@ async def catchNovel(playwright, url):
     next_url = await nextNode.get_attribute("href")  #定义text变量接收a标签底下的href属性
 
 
-    next_url = "https://www.xiaoshuo.com.tw/462894/" + next_url
+    next_url = "https://www.xiaoshuo.com.tw/128154/" + next_url
 
     return title, contents, next_url
 
@@ -156,8 +156,8 @@ async def readOneNovel(bookTitle, url, mode="complete"):
 
 novelList=[
 {
-    "url":"https://www.xiaoshuo.com.tw/462894/143897621.html",
-    "bookTitle":"超神级学霸",
+    "url":"https://www.xiaoshuo.com.tw/128154/152581429.html",
+    "bookTitle":"導演的快樂你不懂",
     "mode":"add"
 }
 ]
