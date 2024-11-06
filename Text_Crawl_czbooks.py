@@ -150,8 +150,8 @@ async def readOneNovel(bookTitle, url, mode="complete"):
 
 novelList=[
 {
-    "url":"https://czbooks.net/n/uifi2/ueibb",
-    "bookTitle":"大腕崛起",
+    "url":"https://czbooks.net/n/s6p45h/s6pob6jo?chapterNumber=74",
+    "bookTitle":"娛樂：我實在太想進步了",
     "mode":"new"
 }
 ]

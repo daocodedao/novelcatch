@@ -156,9 +156,9 @@ async def readOneNovel(bookTitle, url, mode="complete"):
 
 novelList=[
 {
-    "url":"https://www.xiaoshuo.com.tw/128154/152581429.html",
-    "bookTitle":"導演的快樂你不懂",
-    "mode":"add"
+    "url":"https://www.xiaoshuo.com.tw/3683/",
+    "bookTitle":"光影文娱",
+    "mode":"new"
 }
 ]
 # driver = webdriver.Chrome()
