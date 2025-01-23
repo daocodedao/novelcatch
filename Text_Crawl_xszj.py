@@ -182,8 +182,8 @@ async def readOneNovel(bookTitle, url, mode="complete"):
 
 novelList=[
 {
-    "url":"https://xszj.org/b/133126/c/13212629",
-    "bookTitle":"从剧本杀店开始",
+    "url":"https://xszj.org/b/384163/c/14829350",
+    "bookTitle":"华娱：过把瘾",
     "mode":"new"
 }
 ]

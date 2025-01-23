@@ -136,9 +136,9 @@ async def readOneNovel(bookTitle,
 
 novelList=[
 {
-    "url":"https://www.bq97.cc/htm/72831/117.html",
-    "bookTitle":"文娱，我只喜欢拍电影 ",
-    "nextPagePreUrl":"https://www.bq97.cc",
+    "url":"https://www.bq04.cc/book/141640/1.html",
+    "bookTitle":"混迹华娱的我没有格局",
+    "nextPagePreUrl":"https://www.bq04.cc",
     "mode":"new",
     "sectionIdx":1
 }

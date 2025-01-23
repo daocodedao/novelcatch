@@ -150,10 +150,14 @@ async def readOneNovel(bookTitle,
                         f.write("\r\n") 
 
                     contentList = contents.split("\u2003\u2003")
+                    if len(contentList) < 2:
+                        contentList = contents.split("\n\n")
                     for content in contentList:
                         content = handle_content(content)
                         if len(content) == 0:
                             continue
+                        
+
                         f.write(content)
                         f.write("\r\n") 
 
@@ -165,11 +169,11 @@ async def readOneNovel(bookTitle,
 
 novelList=[
 {
-    "url":"https://69shuba.cx/txt/52902/34470364",
-    "bookTitle":"黄金时代1991",
+    "url":"https://69shuba.cx/txt/47718/31669917",
+    "bookTitle":"好莱坞绘制",
     "nextPagePreUrl":"https://69shuba.cx",
     "mode":"new",
-    "sectionIdx":90
+    "sectionIdx":221
 }
 ]
 

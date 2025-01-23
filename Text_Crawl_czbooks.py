@@ -10,7 +10,7 @@ from playwright.async_api import Playwright, async_playwright
 import threading
 import asyncio
 from zhconv import convert
-
+import random
 
 
 browser = None
@@ -142,7 +142,7 @@ async def readOneNovel(bookTitle, url, mode="complete"):
                         f.write(content)
                         f.write("\r\n") 
 
-                    time.sleep(0.3)
+                    time.sleep(random.uniform(0, 4))
                     title, contents, next_url = await catchNovel(playwright, next_url)
             except Exception as e:
                 print(e)
@@ -150,9 +150,9 @@ async def readOneNovel(bookTitle, url, mode="complete"):
 
 novelList=[
 {
-    "url":"https://czbooks.net/n/s6p45h/s6pob6jo?chapterNumber=74",
-    "bookTitle":"娛樂：我實在太想進步了",
-    "mode":"new"
+    "url":"https://czbooks.net/n/ujbnf/ucelo",
+    "bookTitle":"生活系神豪",
+    "mode":"add"
 }
 ]
 # driver = webdriver.Chrome()

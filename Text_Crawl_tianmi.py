@@ -118,9 +118,10 @@ def handle_content(content):
     retStr = content
     return retStr
 
-async def readOneNovel(bookTitle, url, mode="complete"):
+async def readOneNovel(bookTitle, url, mode="complete",
+                       startSection=1):
     oldTitle = ""
-    index = 1
+    index = startSection
     # 覆盖写
     writeMode = 'w' 
     if mode == "add":
@@ -157,12 +158,16 @@ async def readOneNovel(bookTitle, url, mode="complete"):
 
 novelList=[
 {
-    "url":"http://www.xianqihaotianmi.org/read/72308_38960963.html",
-    "bookTitle":"科技之锤",
-    "mode":"add"
+    "url":"http://www.xianqihaotianmi.org/read/100454_45215031.html",
+    "bookTitle":"娱乐圈的边缘艺术家",
+    "mode":"add",
+    "sectionIdx":444
 }
 ]
 # driver = webdriver.Chrome()
 
 for novel in novelList:
-     asyncio.run(readOneNovel(novel["bookTitle"], novel["url"], novel["mode"]))
+     asyncio.run(readOneNovel(novel["bookTitle"], 
+                              novel["url"], 
+                              novel["mode"],
+                              startSection=novel["sectionIdx"]))

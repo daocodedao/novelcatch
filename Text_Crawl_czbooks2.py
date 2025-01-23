@@ -10,7 +10,7 @@ from playwright.async_api import Playwright, async_playwright
 import threading
 import asyncio
 from zhconv import convert
-
+import random
 
 
 browser = None
@@ -26,22 +26,19 @@ async def catchNovel(playwright, url):
 
     # //*[@id="sticky-parent"]/div[2]/div[3]
     # //*[@id="sticky-parent"]/div[2]/div[3]
-    titleNode = await page.query_selector('//*[@class="chapter-name"]')
+    titleNode = await page.query_selector('//*[@id="sticky-parent"]/div[2]/div[3]')
     title = await titleNode.text_content()
-    if len(title.split("（")) > 0:
-        title = title.split("（")[0]
-
-    
+    title = convert(title, 'zh-cn')
     contentNode = await page.query_selector('//*[@class="content"]')
     contents = await contentNode.text_content()
     contents = convert(contents, 'zh-cn')
 
     # //*[@id="mm-5"]/div[2]/div/ul/li[2]/a
-    nextNode = await page.query_selector('//*[@class="g-content-nav"]/a[2]')
+    nextNode = await page.query_selector('//*[@class="next-chapter"]')
     next_url = await nextNode.get_attribute("href")  #定义text变量接收a标签底下的href属性
 
 
-    next_url = "https://m.1ab0.com" + next_url
+    next_url = "https:" + next_url
 
     return title, contents, next_url
 
@@ -145,7 +142,7 @@ async def readOneNovel(bookTitle, url, mode="complete"):
                         f.write(content)
                         f.write("\r\n") 
 
-                    time.sleep(0.3)
+                    time.sleep(random.uniform(0, 4))
                     title, contents, next_url = await catchNovel(playwright, next_url)
             except Exception as e:
                 print(e)
@@ -153,8 +150,8 @@ async def readOneNovel(bookTitle, url, mode="complete"):
 
 novelList=[
 {
-    "url":"https://m.1ab0.com/read/42625/17493871.html",
-    "bookTitle":"超神级学霸",
+    "url":"https://czbooks.net/n/ui51co/ui5hab",
+    "bookTitle":"消費系男神",
     "mode":"new"
 }
 ]

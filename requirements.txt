@@ -5,3 +5,4 @@ playwright
 selenium
 webdriver_manager
 opencc-python
+selenium
