@@ -1,13 +1,8 @@
 
 import time
-# from selenium import webdriver
 import os
-# from selenium.webdriver.common.by import By
-# from selenium.webdriver.chrome.options import Options
-# from webdriver_manager.chrome import ChromeDriverManager
 import re
-from playwright.async_api import Playwright, async_playwright
-import threading
+from playwright.async_api import async_playwright
 import asyncio
 from zhconv import convert
 
@@ -28,7 +23,7 @@ def remove_chinese_numbering(chapter_title):
     return chapter_title
 
 async def catchNovel(playwright, url):
-    global browser,context,page
+    global browser, context,page
     if not browser:
         browser = await playwright.firefox.launch(headless=False)
         context = await browser.new_context()
@@ -38,6 +33,12 @@ async def catchNovel(playwright, url):
     # //*[@id="sticky-parent"]/div[2]/div[3]
     # //*[@id="sticky-parent"]/div[2]/div[3]
     titleNode = await page.query_selector('//*[@class="bookname"]')
+    if not titleNode:
+        # 20秒，用户手动处理
+        time.sleep(60)
+        titleNode = await page.query_selector('//*[@class="bookname"]')
+    
+    
     title = await titleNode.text_content()
     if len(title.split("（")) > 0:
         title = title.split("（")[0]
@@ -182,8 +183,8 @@ async def readOneNovel(bookTitle, url, mode="complete"):
 
 novelList=[
 {
-    "url":"https://xszj.org/b/384163/c/14829350",
-    "bookTitle":"华娱：过把瘾",
+    "url":"https://xszj.org/b/388380/c/16091401",
+    "bookTitle":"开局相亲女儿国王",
     "mode":"new"
 }
 ]

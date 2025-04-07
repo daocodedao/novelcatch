@@ -4,3 +4,12 @@ __pycache__/
 images/
 .vscode/
 .aider.tags.cache.v3/
+*.txt
+
+# Playwright
+node_modules/
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+firefox_profile/

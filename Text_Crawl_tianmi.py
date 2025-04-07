@@ -1,17 +1,8 @@
 
 import time
-# from selenium import webdriver
-import os
-# from selenium.webdriver.common.by import By
-# from selenium.webdriver.chrome.options import Options
-# from webdriver_manager.chrome import ChromeDriverManager
 import re
 from playwright.async_api import Playwright, async_playwright
-import threading
 import asyncio
-from zhconv import convert
-
-
 
 browser = None
 context = None
@@ -24,27 +15,27 @@ async def catchNovel(playwright, url):
         page = await context.new_page()
     await page.goto(url)
 
+    for i in range(10):
+        # 重试次数 = 10
+        try:
+            titleNode = await page.query_selector('//*[@class="panel-heading"]')
+            title = await titleNode.text_content()
+            title = title.replace("正文卷  ", "")
+            title = title.replace("加入书签投票", "")
+            contentNode = await page.query_selector('//*[@class="panel-body content-body content-ext"]')
+            contents = await contentNode.text_content()
+            nextNode = await page.query_selector('//*[@class="next"]/a')
+            next_url = await nextNode.get_attribute("href")  #定义text变量接收a标签底下的href属性
 
-    titleNode = await page.query_selector('//*[@class="panel-heading"]')
-    title = await titleNode.text_content()
-    title = title.replace("正文卷  ", "")
-    title = title.replace("加入书签投票", "")
-    contentNode = await page.query_selector('//*[@class="panel-body content-body content-ext"]')
-    contents = await contentNode.text_content()
-    # contents = convert(contents, 'zh-cn')
 
-    # //*[@id="mm-5"]/div[2]/div/ul/li[2]/a
-    # /html/body/div[4]/div[3]/div/nav/ul/li[4]/a
-    nextNode = await page.query_selector('//*[@class="next"]/a')
-    next_url = await nextNode.get_attribute("href")  #定义text变量接收a标签底下的href属性
-
-    # start_index = next_url.find('_') + 1
-    # end_index = next_url.find('.html')
-    # substring = next_url[start_index:end_index]
-    # next_url = f"http://m.xianqihaotianmi.org/book_104723/{substring}.html"
-
-    next_url = f"http://www.xianqihaotianmi.org{next_url}"
-    return title, contents, next_url
+            next_url = f"http://www.xianqihaotianmi.org{next_url}"
+            return title, contents, next_url
+        except Exception as e:
+            print(e)
+            time.sleep(1)
+            await page.reload()
+            
+    
 
 def handle_title(title, index, bookTitle, oldTitle):
     title = title.replace("（求月票）", "")
@@ -158,10 +149,10 @@ async def readOneNovel(bookTitle, url, mode="complete",
 
 novelList=[
 {
-    "url":"http://www.xianqihaotianmi.org/read/100454_45215031.html",
-    "bookTitle":"娱乐圈的边缘艺术家",
-    "mode":"add",
-    "sectionIdx":444
+    "url":"http://www.xianqihaotianmi.org/read/42724_22504499.html",
+    "bookTitle":"我的重返人生",
+    "mode":"new",
+    "sectionIdx":1
 }
 ]
 # driver = webdriver.Chrome()

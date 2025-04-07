@@ -1,66 +1,76 @@
 
 import time
-# from selenium import webdriver
-import os
-# from selenium.webdriver.common.by import By
-# from selenium.webdriver.chrome.options import Options
-# from webdriver_manager.chrome import ChromeDriverManager
 import re
-from playwright.async_api import Playwright, async_playwright
-import threading
+import cn2an
 import asyncio
-from zhconv import convert
-import random
-
-
+from playwright.async_api import async_playwright
 browser = None
 context = None
 page = None
-async def catchNovel(playwright, url):
+
+def replace_string(string):
+    """
+    替换字符串，提取章数和标题
+
+    Args:
+        string: 待替换的字符串
+
+    Returns:
+        替换后的字符串
+    """
+
+    # 正则表达式匹配章数和标题
+    pattern = r"(\d+)\.第\1章 (.*)"
+    match = re.match(pattern, string)
+
+    if match:
+        chapter_num, title = match.groups()
+        return f"第 {chapter_num} 章 {title}"
+    else:
+        return string
+
+
+async def catchNovel(playwright, nextPagePre, url):
     global browser,context,page
     if not browser:
-        browser = await playwright.chromium.launch(headless=False)
+        browser = await playwright.firefox.launch(headless=False)
         context = await browser.new_context()
         page = await context.new_page()
     await page.goto(url)
-
-    # //*[@id="sticky-parent"]/div[2]/div[3]
-    # //*[@id="sticky-parent"]/div[2]/div[3]
-    titleNode = await page.query_selector('//*[@id="sticky-parent"]/div[2]/div[3]')
+    
+    
+    titleNode = await page.query_selector('//*[@class="hide720"]')
     title = await titleNode.text_content()
-    title = convert(title, 'zh-cn')
+    if len(title.split("（")) > 0:
+        title = title.split("（")[0]
+    title = replace_string(title)
+
     contentNode = await page.query_selector('//*[@class="content"]')
     contents = await contentNode.text_content()
-    contents = convert(contents, 'zh-cn')
+    contents = contents.replace("loadAdv(2, 0);\n", "")
+    contents = contents.replace("loadAdv(3, 0);\n", "")
+    contents = contents.replace(title, "")
+    
 
-    # //*[@id="mm-5"]/div[2]/div/ul/li[2]/a
-    nextNode = await page.query_selector('//*[@class="next-chapter"]')
+    nextNode = await page.query_selector('//*[@class="page1"]/a[3]')
     next_url = await nextNode.get_attribute("href")  #定义text变量接收a标签底下的href属性
 
-
-    next_url = "https:" + next_url
-
+    next_url = nextPagePre + next_url
+    # next_url = "https://m.qmxs123.com" + next_url
     return title, contents, next_url
 
+
 def handle_title(title, index, bookTitle, oldTitle):
-    title = title.replace("（求月票）", "")
-    title = title.replace("（求收藏）", "")
-    
     pattern = r"\d+\）"
     title = re.sub(pattern, "", title)
     pattern = r"\d+\、"
     title = re.sub(pattern, "", title)
-
-    pattern = r'(\d+)\.第'
-    title = re.sub(pattern, "第", title)
-
 
     title = title.replace(bookTitle, "")
     title = title.replace("_", "")
     title = title.replace("正文 ", "")
     title = title.replace("1）分段阅读_", "")
     title = title.replace("章  ", "章 ")
-
     # title = cn2an.transform(title, "cn2an")
 
     if title == oldTitle or title in oldTitle:
@@ -84,7 +94,6 @@ def handle_title(title, index, bookTitle, oldTitle):
 def handle_content(content):
     retStr = ""
     content = content.replace("\r\n", "")
-    
     content = content.replace("\xa0\xa0\xa0\xa0", "")
     pattern = r'第\d+章'
     if re.search(pattern, content):
@@ -96,66 +105,72 @@ def handle_content(content):
 
     content = content.replace("\u3000\u3000", "")
     content = content.replace("\n\u2003\u2003", "")
-    content = content.replace("\u2003", "")
-    content = content.replace("（求月票）", "")
-    content = content.replace("（求收藏）", "")
+    content = content.replace("\u2003\u2003", "")
+    content = content.replace("请收藏：https://m.qmxs123.com", "")
+    content = content.replace("温梦卿李小兵老黄", "")
     content = content.replace("\n\t", "")
     content = content.replace("\n", "")
     content = content.replace("            ", "")
-    if "本章未完，点击下一页继续阅读" in content:
-        content = ""
-    if "本章完" in content:
-        content = ""
-    
-    
     retStr = content
     return retStr
 
-async def readOneNovel(bookTitle, url, mode="complete"):
+async def readOneNovel(bookTitle, 
+                       url, 
+                       nextPagePre,
+                       mode="complete",
+                       startSection=1):
     oldTitle = ""
-    index = 1
+    index = startSection
     # 覆盖写
     writeMode = 'w' 
     if mode == "add":
         # 追加写
         writeMode = 'a'
+    
     async with async_playwright() as playwright:
         with open(bookTitle + '.txt', writeMode, encoding='utf-8') as f:
             try:
-                title, contents, next_url = await catchNovel(playwright, url)
+                title, contents, next_url = await catchNovel(playwright, nextPagePre, url)
                 while(1):
+                    title = handle_title(title, index, bookTitle, oldTitle)
                     if len(title) > 0:
-                        title = handle_title(title, index, bookTitle, oldTitle)
-                        if len(title) > 0:
-                            print(title)
-                            oldTitle = title
-                            index = index + 1
-                            f.write(title)
-                            f.write("\r\n") 
+                        print(title)
+                        oldTitle = title
+                        index = index + 1
+                        f.write(title)
+                        f.write("\r\n") 
 
-                    
-                    contentList = contents.split("\n\n")
+                    contentList = contents.split("\u2003\u2003")
+                    if len(contentList) < 2:
+                        contentList = contents.split("\n")
                     for content in contentList:
                         content = handle_content(content)
                         if len(content) == 0:
                             continue
+                        
+
                         f.write(content)
                         f.write("\r\n") 
 
-                    time.sleep(random.uniform(0, 4))
-                    title, contents, next_url = await catchNovel(playwright, next_url)
+                    time.sleep(0.3)
+                    title, contents, next_url = await catchNovel(playwright, nextPagePre, next_url)
             except Exception as e:
                 print(e)
                 f.close() 
 
 novelList=[
 {
-    "url":"https://czbooks.net/n/ui51co/ui5hab",
-    "bookTitle":"消費系男神",
-    "mode":"new"
+    "url":"https://www.69yuedu.net/r/egioujteie/glhxfluasmfpfxto.html",
+    "bookTitle":"华娱之随心所欲",
+    "nextPagePreUrl":"https://www.69yuedu.net/r/egioujteie",
+    "mode":"new",
+    "sectionIdx":582
 }
 ]
-# driver = webdriver.Chrome()
 
 for novel in novelList:
-     asyncio.run(readOneNovel(novel["bookTitle"], novel["url"], novel["mode"]))
+    asyncio.run(readOneNovel(novel["bookTitle"], 
+                             novel["url"], 
+                             nextPagePre = novel["nextPagePreUrl"], 
+                             mode=novel["mode"],
+                             startSection=novel["sectionIdx"]))
