@@ -12,4 +12,4 @@ node_modules/
 /playwright-report/
 /blob-report/
 /playwright/.cache/
-firefox_profile/
+firefox_profile/large_file.zip
