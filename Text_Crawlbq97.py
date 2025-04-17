@@ -1,17 +1,8 @@
 
 import time
-from selenium import webdriver
-import os
-from selenium.webdriver.common.by import By
-from selenium.webdriver.chrome.options import Options
-from webdriver_manager.chrome import ChromeDriverManager
 import re
-import cn2an
 import asyncio
 from playwright.async_api import Playwright, async_playwright
-
-from lxml import etree
-import threading
 
 browser = None
 context = None

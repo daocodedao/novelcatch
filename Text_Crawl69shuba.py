@@ -1,9 +1,10 @@
 
 import time
 import re
-import cn2an
 import asyncio
 from playwright.async_api import async_playwright
+import random
+
 browser = None
 context = None
 page = None
@@ -33,40 +34,34 @@ def replace_string(string):
 async def catchNovel(playwright, nextPagePre, url):
     global browser,context,page
     if not browser:
-        browser = await playwright.firefox.launch(headless=False)
+        browser = await playwright.chromium.launch(headless=False, executable_path="/Users/linzhiji/Library/Caches/ms-playwright/chromium-1155/chrome-mac/Chromium.app/Contents/MacOS/Chromium")
         context = await browser.new_context()
         page = await context.new_page()
     await page.goto(url)
     
-
-    titleNode = await page.query_selector('//*[@class="hide720"]')
-    title = await titleNode.text_content()
-    if len(title.split("（")) > 0:
-        title = title.split("（")[0]
-    title = replace_string(title)
-
-    p_tags  = await page.query_selector_all('//*[@class="txtnav"]/p')
-    all_contents=""
-    for p_tag in p_tags:
-        # 获取<p>标签下的文字内容
-        text_content = await p_tag.text_content()
-
-        if "章 " in text_content and len(all_contents) == 0:
-            title = text_content
+    for i in range(10):
+        # 重试次数 = 10
+        try:
+            titleNode = await page.query_selector('//*[@class="hide720"]')
+            title = await titleNode.text_content()
             if len(title.split("（")) > 0:
                 title = title.split("（")[0]
-            continue
+            title = replace_string(title)
 
-        # 将文字内容添加到列表中
-        all_contents=f"{all_contents}\n\n{text_content}"
-    contents = all_contents
+            contentNode = await page.query_selector('//*[@class="txtnav"]')
+            contents = await contentNode.text_content()
 
-    nextNode = await page.query_selector('//*[@class="page1"]/a[4]')
-    next_url = await nextNode.get_attribute("href")  #定义text变量接收a标签底下的href属性
+            nextNode = await page.query_selector('//*[@class="page1"]/a[4]')
+            next_url = await nextNode.get_attribute("href")  #定义text变量接收a标签底下的href属性
 
-    # next_url = nextPagePre + next_url
-    # next_url = "https://m.qmxs123.com" + next_url
-    return title, contents, next_url
+            # next_url = nextPagePre + next_url
+            # next_url = "https://m.qmxs123.com" + next_url
+            return title, contents, next_url
+        except Exception as e:
+            print(e)
+            time.sleep(1)
+            await page.reload()
+            
 
 
 def handle_title(title, index, bookTitle, oldTitle):
@@ -157,7 +152,7 @@ async def readOneNovel(bookTitle,
                         f.write(content)
                         f.write("\r\n") 
 
-                    time.sleep(0.3)
+                    time.sleep(random.uniform(0, 4))
                     title, contents, next_url = await catchNovel(playwright, nextPagePre, next_url)
             except Exception as e:
                 print(e)
@@ -165,11 +160,11 @@ async def readOneNovel(bookTitle,
 
 novelList=[
 {
-    "url":"https://69shuba.cx/txt/52902/34470364",
-    "bookTitle":"黄金时代1991",
-    "nextPagePreUrl":"https://69shuba.cx",
+    "url":"https://www.69shuba.com/txt/67131/38434419",
+    "bookTitle":"华娱2017：从顶流作家开始",
+    "nextPagePreUrl":"https://69shuba.com",
     "mode":"new",
-    "sectionIdx":90
+    "sectionIdx":1
 }
 ]
 

@@ -15,7 +15,9 @@ async def catchNovel(playwright, nextPagePre, url):
         browser = await playwright.firefox.launch(headless=False)
         context = await browser.new_context()
         page = await context.new_page()
+    
     await page.goto(url)
+    
     for i in range(10):
         # 重试次数 = 10
         try:
@@ -152,11 +154,11 @@ async def readOneNovel(bookTitle,
 
 novelList=[
 {
-    "url":"https://czbooks.net/n/u4ale/ucpf9",
-    "bookTitle":"我只想自力更生",
+    "url":"https://czbooks.net/n/s6dooi/s66586kp?chapterNumber=6",
+    "bookTitle":"新时代艺术家",
     "nextPagePreUrl":"https:",  # 下一页URL前缀
-    "mode":"add",  # 模式
-    "sectionIdx":806  # 起始章节索引
+    "mode":"new",  # 模式
+    "sectionIdx":1  # 起始章节索引
 }
 ]
 # driver = webdriver.Chrome()

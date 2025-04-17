@@ -10,7 +10,7 @@ page = None
 async def catchNovel(playwright, url):
     global browser,context,page
     if not browser:
-        browser = await playwright.chromium.launch(headless=False)
+        browser = await playwright.firefox.launch(headless=False)
         context = await browser.new_context()
         page = await context.new_page()
     await page.goto(url)
@@ -149,10 +149,10 @@ async def readOneNovel(bookTitle, url, mode="complete",
 
 novelList=[
 {
-    "url":"http://www.xianqihaotianmi.org/read/42724_22504499.html",
-    "bookTitle":"我的重返人生",
+    "url":"http://www.xianqihaotianmi.org/read/112481_47642912.html",
+    "bookTitle":"文豪1978",
     "mode":"new",
-    "sectionIdx":1
+    "sectionIdx":283
 }
 ]
 # driver = webdriver.Chrome()

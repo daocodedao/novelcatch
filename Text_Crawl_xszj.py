@@ -183,8 +183,8 @@ async def readOneNovel(bookTitle, url, mode="complete"):
 
 novelList=[
 {
-    "url":"https://xszj.org/b/388380/c/16091401",
-    "bookTitle":"开局相亲女儿国王",
+    "url":"https://xszj.org/b/401399/c/6159059",
+    "bookTitle":"华娱：重生了，还逼我做渣男啊",
     "mode":"new"
 }
 ]
