@@ -4,8 +4,6 @@ from playwright.async_api import Playwright, async_playwright
 import asyncio
 from zhconv import convert
 import random
-from textUtil import chinese_to_arabic, handle_title,handle_content
-
 
 browser = None
 context = None
@@ -44,6 +42,35 @@ async def catchNovel(playwright, nextPagePre, url):
             await page.reload()
 
 
+def handle_content(content):
+    retStr = ""
+    content = content.replace("\r\n", "")
+    
+    content = content.replace("\xa0\xa0\xa0\xa0", "")
+    pattern = r'第\d+章'
+    if re.search(pattern, content):
+        return retStr
+    if "第" in content and "章" in content:
+        return retStr
+    if "分段阅读" in content:
+        return retStr
+
+    content = content.replace("\u3000\u3000", "")
+    content = content.replace("\n\u2003\u2003", "")
+    content = content.replace("\u2003", "")
+    content = content.replace("（求月票）", "")
+    content = content.replace("（求收藏）", "")
+    content = content.replace("\n\t", "")
+    content = content.replace("\n", "")
+    content = content.replace("            ", "")
+    if "本章未完，点击下一页继续阅读" in content:
+        content = ""
+    if "本章完" in content:
+        content = ""
+    
+    
+    retStr = content
+    return retStr
 
 async def readOneNovel(bookTitle, 
                        url, 
@@ -88,11 +115,11 @@ async def readOneNovel(bookTitle,
 
 novelList=[
 {
-    "url":"https://czbooks.net/n/ui51p4/uifgh4",
-    "bookTitle":"红旗招展的岁月",
+    "url":"https://czbooks.net/n/ui6loe/ui2le1",
+    "bookTitle":"重生从咸鱼赢起",
     "nextPagePreUrl":"https:",  # 下一页URL前缀
     "mode":"add",  # 模式
-    "sectionIdx":169  # 起始章节索引
+    "sectionIdx":395  # 起始章节索引
 }
 ]
 # driver = webdriver.Chrome()

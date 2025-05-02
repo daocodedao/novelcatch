@@ -201,8 +201,8 @@ async def readOneNovel(bookTitle,
 # 小说列表配置
 novelList=[
 {
-    "url":"https://m.paozw.org/biquge/391863/107817104.html",  # 小说起始URL
-    "bookTitle":"华娱之一番为王",  # 书名
+    "url":"https://m.paozw.org/biquge/376375/100890856.html",  # 小说起始URL
+    "bookTitle":"混在墨西哥当警察",  # 书名
     "nextPagePreUrl":"https://m.paozw.org",  # 下一页URL前缀
     "mode":"new",  # 模式
     "sectionIdx":1  # 起始章节索引
