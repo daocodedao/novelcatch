@@ -35,6 +35,8 @@ async def catchNovel(playwright, nextPagePre, url):
     global browser,context,page
     if not browser:
         browser = await playwright.chromium.launch(headless=False, executable_path="/Users/linzhiji/Library/Caches/ms-playwright/chromium-1155/chrome-mac/Chromium.app/Contents/MacOS/Chromium")
+        
+        
         context = await browser.new_context()
         page = await context.new_page()
     await page.goto(url)

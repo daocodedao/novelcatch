@@ -1,5 +1,3 @@
-
-
 import re
 
 def chinese_to_arabic(chinese_num):
@@ -32,8 +30,6 @@ def chinese_to_arabic(chinese_num):
         
     return result
 
-
-
 def handle_title(title, index, bookTitle, oldTitle):
     
     # 移除数字加括号或顿号的格式
@@ -56,8 +52,10 @@ def handle_title(title, index, bookTitle, oldTitle):
     title = title.replace(bookTitle, "")
     title = title.replace("_", "")
     title = title.replace("正文 ", "")
+    title = title.replace("\xa0", "")
     title = title.replace("1）分段阅读_", "")
     title = title.replace("章  ", "章 ")
+    
 
     # 处理中文数字或阿拉伯数字加空格加标题的情况
     # 匹配模式：数字（中文或阿拉伯）+ 空格 + 标题
@@ -119,8 +117,6 @@ def handle_title(title, index, bookTitle, oldTitle):
     title = re.sub(r'\([^\)]*\)', '', title)  # 移除英文括号及其中的内容
     
     return title
-
-
 
 def handle_content(content):
     retStr = ""

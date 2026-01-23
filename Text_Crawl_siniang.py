@@ -22,25 +22,29 @@ async def catchNovel(playwright, nextPagePre, url):
     for i in range(10):
         # 重试次数 = 10
         try:
-            # //*[@id="sticky-parent"]/div[2]/div[3]
-            # //*[@id="sticky-parent"]/div[2]/div[3]
-            titleNode = await page.query_selector('//*[@id="sticky-parent"]/div[2]/div[3]')
+
+            # titleNode = await page.query_selector('//*[@id="sticky-parent"]/div[2]/div[3]')
+            # title = await titleNode.text_content()
+            
+            titleNode = await page.query_selector('//*[@class="title"]')
             title = await titleNode.text_content()
             title = convert(title, 'zh-cn')
+            
             contentNode = await page.query_selector('//*[@class="content"]')
             contents = await contentNode.text_content()
             contents = convert(contents, 'zh-cn')
 
             # //*[@id="mm-5"]/div[2]/div/ul/li[2]/a
-            nextNode = await page.query_selector('//*[@class="next-chapter"]')
-            next_url = await nextNode.get_attribute("href")  #定义text变量接收a标签底下的href属性
+            nextNode = await page.query_selector('//*[@class="section-opt"]/a[4]')
+            next_url = await nextNode.get_attribute("href") 
+            
 
             next_url = nextPagePre + next_url
 
             return title, contents, next_url
         except Exception as e:
             print(f"sleep 15s {e}")
-            time.sleep(random.uniform(0, 4))
+            # time.sleep(random.uniform(0, 1))
             await page.reload()
 
 
@@ -72,15 +76,17 @@ async def readOneNovel(bookTitle,
                             f.write("\r\n") 
 
                     
-                    contentList = contents.split("\n\n")
+                    contentList = contents.split("\u3000\u3000\u3000\u3000")
                     for content in contentList:
+                        if "read2()" in content:
+                            continue
                         content = handle_content(content)
                         if len(content) == 0:
                             continue
                         f.write(content)
                         f.write("\r\n") 
 
-                    time.sleep(random.uniform(0, 4))
+                    # time.sleep(random.uniform(0, 1))
                     title, contents, next_url = await catchNovel(playwright, nextPagePre, next_url)
             except Exception as e:
                 print(e)
@@ -88,11 +94,11 @@ async def readOneNovel(bookTitle,
 
 novelList=[
 {
-    "url":"https://czbooks.net/n/ui51p4/uifgh4",
-    "bookTitle":"红旗招展的岁月",
-    "nextPagePreUrl":"https:",  # 下一页URL前缀
+    "url":"http://23.224.242.59/book/114948/44874047.html",
+    "bookTitle":"华娱之娱乐时代",
+    "nextPagePreUrl":"http://23.224.242.59",  # 下一页URL前缀
     "mode":"add",  # 模式
-    "sectionIdx":169  # 起始章节索引
+    "sectionIdx":363  # 起始章节索引
 }
 ]
 # driver = webdriver.Chrome()

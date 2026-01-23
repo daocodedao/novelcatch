@@ -12,20 +12,27 @@ browser = None
 context = None
 page = None
 async def catchNovel(playwright, nextPagePre, url):
-    global browser,context,page
+    global browser, context, page
     if not browser:
-        browser = await playwright.firefox.launch(headless=False)
+        # browser = await playwright.firefox.launch(headless=False)
+        browser = await playwright.chromium.launch(headless=False, executable_path="/Users/linzhiji/Library/Caches/ms-playwright/chromium-1155/chrome-mac/Chromium.app/Contents/MacOS/Chromium")
         context = await browser.new_context()
         page = await context.new_page()
     
-    await page.goto(url)
+    await page.goto(url, timeout=60000)
     
     for i in range(10):
         # 重试次数 = 10
         try:
-            # //*[@id="sticky-parent"]/div[2]/div[3]
-            # //*[@id="sticky-parent"]/div[2]/div[3]
-            titleNode = await page.query_selector('//*[@id="sticky-parent"]/div[2]/div[3]')
+            # TODO: 判断页面里是否有<button> 标签里的文案是  加|载|更|多 ，如果有就点击
+            # 查找文案包含"加载更多"的按钮并点击
+            load_more_button = await page.query_selector('button:text("加|载|更|多"), button:has-text("加|载|更|多"), *[role="button"]:text("加|载|更|多"), div:text("加|载|更|多")')
+            if load_more_button:
+                await load_more_button.click()
+                # 等待可能的内容加载
+                await page.wait_for_timeout(2000)
+            
+            titleNode = await page.query_selector('//*[@id="main"]/h1')
             title = await titleNode.text_content()
             title = convert(title, 'zh-cn')
             contentNode = await page.query_selector('//*[@class="content"]')
@@ -33,7 +40,7 @@ async def catchNovel(playwright, nextPagePre, url):
             contents = convert(contents, 'zh-cn')
 
             # //*[@id="mm-5"]/div[2]/div/ul/li[2]/a
-            nextNode = await page.query_selector('//*[@class="next-chapter"]')
+            nextNode = await page.query_selector('//*[@class="page"]/div[3]/a')
             next_url = await nextNode.get_attribute("href")  #定义text变量接收a标签底下的href属性
 
             next_url = nextPagePre + next_url
@@ -118,11 +125,11 @@ async def readOneNovel(bookTitle,
 
 novelList=[
 {
-    "url":"https://czbooks.net/n/s61a68/s6ojol49?chapterNumber=477",
-    "bookTitle":"叫誰小鮮肉，我是天王",
-    "nextPagePreUrl":"https:",  # 下一页URL前缀
+    "url":"https://m.qbmfxs.com/book_1/69365/534",
+    "bookTitle":"华娱扛把子",
+    "nextPagePreUrl":"https://m.qbmfxs.com/",  # 下一页URL前缀
     "mode":"add",  # 模式
-    "sectionIdx":528  # 起始章节索引
+    "sectionIdx":1  # 起始章节索引
 }
 ]
 # driver = webdriver.Chrome()

@@ -46,6 +46,7 @@ def convert_chapter_numbers(text):
     pattern = r'第[零一二三四五六七八九十百千万]+章'
     return re.sub(pattern, replace_match, text)
 
+
 def process_file(input_file, output_file='out.txt'):
     """处理输入文件并将结果写入输出文件"""
     try:
@@ -54,6 +55,7 @@ def process_file(input_file, output_file='out.txt'):
             content = f.read()
         
         # 转换章节编号
+        converted_content = convert_chapter_numbers(content)
         converted_content = convert_chapter_numbers(content)
         
         # 写入输出文件
@@ -67,5 +69,5 @@ def process_file(input_file, output_file='out.txt'):
         return False
 
 if __name__ == "__main__":
-    input_file = "这个穿越有点早.txt"
+    input_file = "决胜新金融时代.txt"
     process_file(input_file)

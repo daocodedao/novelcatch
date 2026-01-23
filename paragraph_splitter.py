@@ -105,6 +105,6 @@ if __name__ == "__main__":
     # parser.add_argument('-o', '--output', help='输出文本文件路径（可选）')
     
     # args = parser.parse_args()
-    input_file = "./我只想自力更生.txt"
-    output = "./我只想自力更生1.txt"
+    input_file = "./重生世纪之交.txt"
+    output = "./重生世纪之交1.txt"
     process_file(input_file, output)

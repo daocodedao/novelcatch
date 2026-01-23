@@ -1,43 +1,53 @@
-
 import time
 import re
 from playwright.async_api import Playwright, async_playwright
 import asyncio
+from zhconv import convert
+import random
 from textUtil import chinese_to_arabic, handle_title,handle_content
 
 
 browser = None
 context = None
 page = None
-async def catchNovel(playwright,nextPagePre, url):
+async def catchNovel(playwright, nextPagePre, url):
     global browser,context,page
     if not browser:
         browser = await playwright.firefox.launch(headless=False)
         context = await browser.new_context()
         page = await context.new_page()
+    
     await page.goto(url)
-
+    
     for i in range(10):
         # 重试次数 = 10
+        # errorCount = 0
         try:
-            titleNode = await page.query_selector('//*[@class="title"]')
+            # //*[@id="sticky-parent"]/div[2]/div[3]
+            # //*[@id="sticky-parent"]/div[2]/div[3]
+            # titleNode = await page.query_selector('//*[@id="sticky-parent"]/div[2]/div[3]')
+            titleNode = await page.query_selector('//*[@class="pt10"]')
             title = await titleNode.text_content()
-            title = title.replace("正文卷  ", "")
-            title = title.replace("加入书签投票", "")
-            contentNode = await page.query_selector('//*[@class="Readarea ReadAjax_content"]')
+            title = convert(title, 'zh-cn')
+            contentNode = await page.query_selector('//*[@class="readcotent bbb font-normal"]')
             contents = await contentNode.text_content()
-            nextNode = await page.query_selector('//*[@class="Readpage_down js_page_down"]')
+            contents = convert(contents, 'zh-cn')
+
+            # //*[@id="mm-5"]/div[2]/div/ul/li[2]/a
+            nextNode = await page.query_selector('//*[@id="linkNext"]')
             next_url = await nextNode.get_attribute("href")  #定义text变量接收a标签底下的href属性
-            # next_url = await next_url.get_attribute("href")  #定义text变量接收a标签底下的href属性
+
             next_url = nextPagePre + next_url
-            
+            # errorCount = 0
             return title, contents, next_url
         except Exception as e:
-            print(e)
-            time.sleep(1)
+            print(f"sleep 15s {e}")
+            # time.sleep(15)
+            time.sleep(random.uniform(0, 4))
             await page.reload()
-            
-    
+
+
+
 async def readOneNovel(bookTitle, 
                        url, 
                        nextPagePre,
@@ -73,7 +83,7 @@ async def readOneNovel(bookTitle,
                         f.write(content)
                         f.write("\r\n") 
 
-                    time.sleep(0.3)
+                    time.sleep(random.uniform(3, 4))
                     title, contents, next_url = await catchNovel(playwright, nextPagePre, next_url)
             except Exception as e:
                 print(e)
@@ -81,11 +91,11 @@ async def readOneNovel(bookTitle,
 
 novelList=[
 {
-    "url":"http://m.xianqihaotianmi.org/book_87817/42801683.html",
-    "bookTitle":"洛杉矶神探",
-    "nextPagePreUrl":"http://m.xianqihaotianmi.org",  # 下一页URL前缀
-    "mode":"new",
-    "sectionIdx":1
+    "url":"https://sto55.com/book/48047/28438789.html",
+    "bookTitle":"叫谁小鲜肉,我是天王",
+    "nextPagePreUrl":"",  # 下一页URL前缀
+    "mode":"new",  # 模式
+    "sectionIdx":551  # 起始章节索引
 }
 ]
 # driver = webdriver.Chrome()
@@ -93,6 +103,6 @@ novelList=[
 for novel in novelList:
      asyncio.run(readOneNovel(bookTitle=novel["bookTitle"], 
                               url=novel["url"], 
-                              nextPagePre=novel["nextPagePreUrl"], 
+                              nextPagePre = novel["nextPagePreUrl"], 
                               mode=novel["mode"],
                               startSection=novel["sectionIdx"]))
